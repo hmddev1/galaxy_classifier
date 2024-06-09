@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from ZEMO import zemo
 
-def calculate_zernike_moments(image_dir, csv_output_path, image_size=(200, 200), zernike_order=45):
+def calculate_zernike_moments(image_dir, csv_output_path, image_size, zernike_order):
+
     """
     Calculate the Zernike moments for images in a directory and save to a CSV file.
     
@@ -26,7 +27,7 @@ def calculate_zernike_moments(image_dir, csv_output_path, image_size=(200, 200),
     
     for img_path in image_files:
         image = cv2.imread(img_path)
-        resized_image = cv2.resize(image, image_size)
+        resized_image = cv2.resize(image, image_size=(sz, sz))
         im = resized_image[:, :, 0]
         Z = np.abs(zemo.zernike_mom(np.array(im), ZBFSTR))
         zernike_moments.append(Z)
@@ -37,6 +38,6 @@ def calculate_zernike_moments(image_dir, csv_output_path, image_size=(200, 200),
     return df
 
 # Example usage
-# image_directory = '/path/to/your/directory'
-# output_csv = '/content/drive/MyDrive/Data/star_galaxy/ZMs/last/galaxy_45_0.csv'
-# zernike_df = calculate_zernike_moments(image_directory, output_csv)
+image_directory = '/path/to/your/directory'
+output_csv = '/path/to/your/directory/galaxy_45_0.csv'
+zernike_df = calculate_zernike_moments(image_directory, output_csv, image_size=(sz, sz), zernike_order=order)
