@@ -3,8 +3,8 @@ import sys
 from models import classifiers
 
 def main():
-    image_dir = 'path/to/images'
-    zm_output_path = 'path/to/zernike_output.csv'
+    image_dir = 'C:/Users/HMDdev/Pictures/non'
+    zm_output_path = 'C:/Users/HMDdev/Pictures/non/zernike_non.csv'
     model = classifiers.GalaxyClassificationModels(image_dir, zm_output_path)
 
     if len(sys.argv) < 2:

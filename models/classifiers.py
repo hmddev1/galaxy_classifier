@@ -22,7 +22,6 @@ class GalaxyClassificationModels:
         self.image_size = image_size
         self.zernike_order = zm_order
         self.zernike_repetition = 1
-        self.zernike_moments = self.calculate_zernike_moments()
         
     def calculate_zernike_moments(self):
         ZBFSTR = zemo.zernike_bf(self.image_size[0], self.zernike_order, self.zernike_repetition)
@@ -41,16 +40,6 @@ class GalaxyClassificationModels:
         
         return df
     
-    def load_zernike_data(self, zernike_data):
-        galaxies_labels = np.zeros(len(zernike_data))
-        nongalaxy_labels = np.ones(len(zernike_data))
-        all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
-
-        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(zernike_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
-
-        return zm_train, zm_test, y_zm_train, y_zm_test
-    
-
     def load_transform_images(data_dir, target_size=(200, 200)):
 
         def load_images(sub_dir):
@@ -113,21 +102,48 @@ class GalaxyClassificationModels:
         return transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights
 
     def svm_zms(self):
-        zernike_data = np.array(self.zernike_moments)
-        zm_train, zm_test, y_zm_train, y_zm_test = self.load_zernike_data(zernike_data)
-        class_weights = {0: len(zernike_data) / (2 * len(zm_train)), 1: len(zernike_data) / (2 * len(zm_train))}
+        galaxy_zm_directory=input("Input the Galaxy's ZMs directory: ")
+        nongalaxy_zm_directory=input("Input the non-galaxy's ZMs directory: ")
+        
+        galaxy_zms = pd.read_csv(galaxy_zm_directory)
+        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
+        
+        zmg = np.array(galaxy_zms)
+        zmng = np.array(nongalaxy_zms)
+        all_zm_data = np.concatenate([zmg,zmng])
+
+        galaxies_labels = np.zeros(len(zmg))
+        nongalaxy_labels = np.ones(len(zmng))
+        all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
+
+        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
+        class_weights = {0: len(all_zm_data) / (2 * len(zmg)), 1: len(all_zm_data) / (2 * len(zmng))}
         model = SVC(kernel='rbf', probability=True, C=1.5, gamma='scale', class_weight=class_weights)
         model.fit(zm_train, y_zm_train)
         y_pred = model.predict(zm_test)
         return y_pred
     
     def cnn_zms(self):
-        zernike_data = np.expand_dims(np.array(self.zernike_moments), axis=2)
-        zm_train, zm_test, y_zm_train, y_zm_test = self.load_zernike_data(zernike_data)
-        y_train_encoded = to_categorical(y_zm_train, num_classes=2)
-        class_weights = {0: len(zernike_data) / (2 * len(zm_train)), 1: len(zernike_data) / (2 * len(zm_train))}
+        galaxy_zm_directory=input("Input the Galaxy's ZMs directory: ")
+        nongalaxy_zm_directory=input("Input the non-galaxy's ZMs directory: ")
+        
+        galaxy_zms = pd.read_csv(galaxy_zm_directory)
+        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
+        galaxy_zms.drop("Unnamed: 0", axis = 1, inplace = True)
+        nongalaxy_zms.drop("Unnamed: 0", axis = 1, inplace = True)
+        zmg = np.array(galaxy_zms)
+        zmng = np.array(nongalaxy_zms)
+        all_zm_data = np.concatenate([zmg,zmng])
 
-        input_shape = (zernike_data.shape[1], 1)
+        galaxies_labels = np.zeros(len(zmg))
+        nongalaxy_labels = np.ones(len(zmng))
+        all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
+
+        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
+        class_weights = {0: len(all_zm_data) / (2 * len(zmg)), 1: len(all_zm_data) / (2 * len(zmng))}
+        y_train_encoded = to_categorical(y_zm_train, num_classes=2)
+
+        input_shape = (all_zm_data.shape[1], 1)
         b_size = 64
         e_num = 30
         
