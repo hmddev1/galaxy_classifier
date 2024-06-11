@@ -40,67 +40,6 @@ class GalaxyClassificationModels:
         
         return df
     
-    def load_transform_images(data_dir, target_size=(200, 200)):
-
-        def load_images(sub_dir):
-            all_images = []
-            file_paths = [os.path.join(sub_dir, filename) for filename in os.listdir(sub_dir) if filename.endswith('.jpg')]
-            for img_path in file_paths:
-                image = cv2.imread(img_path)
-                resized_image = cv2.resize(image, target_size)
-                pil_image = Image.fromarray(resized_image)
-                all_images.append(pil_image)
-            return all_images
-
-        # Load images
-        g_img = load_images(os.path.join(data_dir, 'galaxy'))
-        ng_img = load_images(os.path.join(data_dir, 'non_galaxy'))
-        all_data = g_img + ng_img
-
-        # Create labels
-        galaxies_labels = np.zeros(len(g_img))
-        nongalaxy_labels = np.ones(len(ng_img))
-        all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
-
-        # Split the data
-        img_train, img_test, y_img_train, y_img_test = train_test_split(all_data, all_labels, test_size=0.25, shuffle=True, random_state=None)
-        y_train_encoded = to_categorical(y_img_train, num_classes=2)
-
-        # Class weights
-        class_weights = {0: len(all_data) / (2 * len(g_img)), 1: len(all_data) / (2 * len(ng_img))}
-
-        # Define transforms
-        train_transform = transforms.Compose([
-            transforms.CenterCrop(target_size[0]),
-            transforms.RandomRotation(90),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
-            transforms.RandomResizedCrop(target_size[0], scale=(0.8, 1.0), ratio=(0.99, 1.01)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-
-        test_transform = transforms.Compose([
-            transforms.CenterCrop(target_size[0]),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-
-        # Apply transforms
-        transformed_X_train=[]
-        for i in range(len(img_train)):
-            transformed_train_images = train_transform(img_train[i])
-            new_image = np.transpose(transformed_train_images, (1, 2, 0))
-            transformed_X_train.append(new_image)
-
-        transformed_X_test=[]
-        for j in range(len(img_test)):
-            transformed_test_images = test_transform(img_test[j])
-            new_images = np.transpose(transformed_test_images, (1, 2, 0))
-            transformed_X_test.append(new_images)
-
-        return transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights
-
     def svm_zms(self):
         galaxy_zm_directory=input("Input the Galaxy's ZMs directory: ")
         nongalaxy_zm_directory=input("Input the non-galaxy's ZMs directory: ")
@@ -148,16 +87,13 @@ class GalaxyClassificationModels:
         c0 = Conv1D(256, kernel_size=3, strides=2, padding="same")(inputs)
         b0 = BatchNormalization()(c0)
         m0 = MaxPooling1D(pool_size=2)(b0)
-        d0 = Dropout(0.1)(m0)
-        c1 = Conv1D(128, kernel_size=3, strides=2, padding="same")(d0)
+        c1 = Conv1D(128, kernel_size=3, strides=2, padding="same")(m0)
         b1 = BatchNormalization()(c1)
         m1 = MaxPooling1D(pool_size=2)(b1)
-        d1 = Dropout(0.1)(m1)
-        c2 = Conv1D(64, kernel_size=3, strides=2, padding="same")(d1)
+        c2 = Conv1D(64, kernel_size=3, strides=2, padding="same")(m1)
         b2 = BatchNormalization()(c2)
         m2 = MaxPooling1D(pool_size=2)(b2)
-        d2 = Dropout(0.1)(m2)
-        f = Flatten()(d2)
+        f = Flatten()(m2)
         de0 = Dense(64, activation='relu')(f)
         de1 = Dense(32, activation='relu')(de0)
         outputs = Dense(2, activation='softmax')(de1)
@@ -171,6 +107,73 @@ class GalaxyClassificationModels:
         y_pred_labels = np.argmax(y_pred, axis=1)
         return y_pred_labels
     
+
+    def load_transform_images(data_dir,target_size=(200, 200)):
+
+        def load_images(sub_dir, categories, target_size=(200, 200)):
+            all_images = []
+            file_paths = [os.path.join(sub_dir, filename) for filename in os.listdir(sub_dir) if filename.endswith('.jpg')]
+            for img_path in file_paths:
+                image = cv2.imread(img_path)
+                resized_image = cv2.resize(image, target_size)
+                resized_images = (resized_image * 255).astype(np.uint8)
+                pil_image = Image.fromarray(resized_images)
+                all_images.append(pil_image)
+            return all_images
+
+        galaxy_img_directory=input("Input the Galaxy's images directory: ")
+        nongalaxy_img_directory=input("Input the non-galaxy's images directory: ")
+        
+        categories=['g','ng']
+        # Load images
+        g_img = load_images(galaxy_img_directory,categories=categories[0], target_size=(200,200))
+        ng_img = load_images(nongalaxy_img_directory, categories=categories[1], target_size=(200,200))
+        all_data = g_img + ng_img
+
+        # Create labels
+        galaxies_labels = np.zeros(len(g_img))
+        nongalaxy_labels = np.ones(len(ng_img))
+        all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
+
+        # Split the data
+        img_train, img_test, y_img_train, y_img_test = train_test_split(all_data, all_labels, test_size=0.25, shuffle=True, random_state=None)
+        y_train_encoded = to_categorical(y_img_train, num_classes=2)
+
+        # Class weights
+        class_weights = {0: len(all_data) / (2 * len(g_img)), 1: len(all_data) / (2 * len(ng_img))}
+
+        # Define transforms
+        train_transform = transforms.Compose([
+            transforms.CenterCrop(target_size[0]),
+            transforms.RandomRotation(90),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.RandomResizedCrop(target_size[0], scale=(0.8, 1.0), ratio=(0.99, 1.01)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+        test_transform = transforms.Compose([
+            transforms.CenterCrop(target_size[0]),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+        # Apply transforms
+        transformed_X_train=[]
+        for i in range(len(img_train)):
+            transformed_train_images = train_transform(img_train[i])
+            new_image = np.transpose(transformed_train_images, (1, 2, 0))
+            transformed_X_train.append(new_image)
+
+        transformed_X_test=[]
+        for j in range(len(img_test)):
+            transformed_test_images = test_transform(img_test[j])
+            new_images = np.transpose(transformed_test_images, (1, 2, 0))
+            transformed_X_test.append(new_images)
+
+        return transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights
+
     def cnn_transformer(self, transformed_X_train, transformed_X_test, y_train_encoded, class_weights, b_size=32, e_num=10, image_size=(200, 200)):
 
         inputs = Input(shape=(image_size[0], image_size[1], 3))

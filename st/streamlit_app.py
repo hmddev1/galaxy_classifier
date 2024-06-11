@@ -7,15 +7,14 @@ import csv
 import warnings
 warnings.filterwarnings('ignore')
 
-from models import classifiers
+# from models import classifiers
 
 #Header
-st.set_page_config(page_title='iFiMAS',  layout='wide', page_icon=':bar_chart:')
+st.set_page_config(page_title='GZ2 Classifier',  layout='wide', page_icon=':bar_chart:')
 # col1, col2 = st.columns((0.09,1)) 
-st.image('logo.png', width = 120)
+# st.image('logo.png', width = 120)
 st.title("""
-                    iFiMAS 
-                    The best Financial Market Analysis System
+                    Galaxy classification tool 
          
         """)
 

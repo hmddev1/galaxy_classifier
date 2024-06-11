@@ -25,7 +25,7 @@ def main():
         print("CNN Zernike Moments prediction completed.")
         print("Predicted value:", y_pred)
     elif function == 'cnn_transformer':
-        transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights = model.load_transform_images(image_dir)
+        transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights = model.load_transform_images()
         y_pred = model.cnn_transformer(transformed_X_train, transformed_X_test, y_train_encoded, class_weights)
         print("CNN Transformer prediction completed.")
         print("Predicted value:", y_pred)
