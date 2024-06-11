@@ -63,7 +63,7 @@ class GalaxyClassificationModels:
         all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
 
         # Split the data
-        img_train, img_test, y_img_train, y_img_test = train_test_split(all_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
+        img_train, img_test, y_img_train, y_img_test = train_test_split(all_data, all_labels, test_size=0.25, shuffle=True, random_state=None)
         y_train_encoded = to_categorical(y_img_train, num_classes=2)
 
         # Class weights
@@ -107,7 +107,6 @@ class GalaxyClassificationModels:
         
         galaxy_zms = pd.read_csv(galaxy_zm_directory)
         nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
-        
         zmg = np.array(galaxy_zms)
         zmng = np.array(nongalaxy_zms)
         all_zm_data = np.concatenate([zmg,zmng])
@@ -116,7 +115,7 @@ class GalaxyClassificationModels:
         nongalaxy_labels = np.ones(len(zmng))
         all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
 
-        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
+        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=None)
         class_weights = {0: len(all_zm_data) / (2 * len(zmg)), 1: len(all_zm_data) / (2 * len(zmng))}
         model = SVC(kernel='rbf', probability=True, C=1.5, gamma='scale', class_weight=class_weights)
         model.fit(zm_train, y_zm_train)
@@ -129,8 +128,6 @@ class GalaxyClassificationModels:
         
         galaxy_zms = pd.read_csv(galaxy_zm_directory)
         nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
-        galaxy_zms.drop("Unnamed: 0", axis = 1, inplace = True)
-        nongalaxy_zms.drop("Unnamed: 0", axis = 1, inplace = True)
         zmg = np.array(galaxy_zms)
         zmng = np.array(nongalaxy_zms)
         all_zm_data = np.concatenate([zmg,zmng])
