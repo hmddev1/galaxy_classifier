@@ -3,8 +3,7 @@ import sys
 from models import classifiers
 
 def main():
-    # galaxy_img_directory = 'C:/Users/HMDdev/Pictures/non'
-    # nongalaxy_img_directory = 'C:/Users/HMDdev/Pictures/non/zernike_non.csv'
+
     model = classifiers.GalaxyClassificationModels()
 
     if len(sys.argv) < 2:
@@ -14,33 +13,32 @@ def main():
     function = sys.argv[1]
 
     if function == 'calculate_zernike_moments':
-        print(f"Galaxy Image Directory: {model.galaxy_img_directory}")
-        print(f"Non-Galaxy Image Directory: {model.nongalaxy_img_directory}")
-        print(f"Target Size: {model.target_size}")
         df = model.calculate_zernike_moments()
         print("Zernike moments calculated and saved.")
-    elif function == 'model_I':
-        y_pred = model.model_I()
+    elif function == 'model_i':
+        y_zm_test, y_pred = model.model_I()
         print("SVM Zernike Moments prediction completed.")
-        print("Predicted value:", y_pred)
-    elif function == 'model_II':
-        y_pred = model.model_II()
+        print("Actual labels:", y_zm_test)
+        print("Predicted labels:", y_pred)
+    elif function == 'model_ii':
+        y_zm_test, y_pred = model.model_II()
         print("CNN Zernike Moments prediction completed.")
+        print("Actual labels:", y_zm_test)
         print("Predicted value:", y_pred)
-    elif function == 'cnn_transformer':
-        transformed_X_train, transformed_X_test, y_train_encoded, y_img_test, class_weights = model.load_transform_images()
-        y_pred = model.cnn_transformer(transformed_X_train, transformed_X_test, y_train_encoded, class_weights)
+    elif function == 'model_iii':
+        y_img_test, y_pred = model.model_III()
         print("CNN Transformer prediction completed.")
+        print("Actual labels:", y_img_test)
         print("Predicted value:", y_pred)
-    elif function == 'resnet50_transformer':
-        transformed_X_train, transformed_X_test, y_train_encoded, class_weights = model.load_transform_images(image_dir)
-        y_pred = model.resnet50_transformer(transformed_X_train, transformed_X_test, y_train_encoded, class_weights)
+    elif function == 'model_iv':
+        y_img_test,y_pred = model.model_IV()
         print("ResNet50 Transformer prediction completed.")
+        print("Actual labels:", y_img_test)
         print("Predicted value:", y_pred)
-    elif function == 'vgg16_transformer':
-        transformed_X_train, transformed_X_test, y_train_encoded, class_weights = model.load_transform_images(image_dir)
-        y_pred = model.vgg16_transformer(transformed_X_train, transformed_X_test, y_train_encoded, class_weights)
+    elif function == 'model_v':
+        y_img_test, y_pred = model.model_V()
         print("VGG16 Transformer prediction completed.")
+        print("Actual labels:", y_img_test)
         print("Predicted value:", y_pred)
     else:
         print("Unknown function. Please use one of the following: calculate_zernike_moments, svm_zms, cnn_zms, cnn_transformer, resnet50_transformer, vgg16_transformer")
