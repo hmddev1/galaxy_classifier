@@ -1,5 +1,10 @@
 import os
 import cv2
+from PIL import Image
+from skimage.measure import label
+from skimage.transform import resize
+from skimage.segmentation import slic, mark_boundaries
+from skimage.color import label2rgb
 import numpy as np
 import pandas as pd
 from ZEMO import zemo
@@ -29,7 +34,98 @@ class GalaxyClassificationModels:
         else:
             print('Error...')
         self.target_size = int(input('Input the target size: '))
+    
+    def segmentation_crop(self):
+        def cheak_1(img):
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV +cv2.THRESH_OTSU, cv2.THRESH_TRUNC)
+            kernel = np.ones((3,3),np.uint8)
+            opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
+            sure_bg = cv2.dilate(opening,kernel,iterations=3)
+            dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
+            ret, aa = cv2.threshold(dist_transform,0.01*dist_transform.max(),255,0)
+            x,y=np.where(aa==0)
+            im=thresh.copy()*0
+            im[x,y]=1
+            im1 = label(im)
+            f=im1[212,212]
+            x,y=np.where(im1==f)
+            imd=im1.copy()*0
+            imd[x,y]=1
+            return x,y,imd
+
+
+        def cheak_2(img):
+            segments = slic(img,n_segments=25,compactness=10)
+            ss=label2rgb(segments,img,kind = 'avg')
+            aa=ss[:,:,2]
+            f=aa[212,212]
+            x,y=np.where(aa==f)
+            dd=aa.copy()*0
+            dd[x,y]=1
+            return x,y,dd
+
+
+        def cheak_3(img,x,y):
+                x1=np.min(x)-20
+                x2=np.max(x)+20
+                y1=np.min(y)-20
+                y2=np.max(y)+20
+                imn=img[x1:x2,y1:y2]
+                newsize=(x2-x1,x2-x1)
+                resized_im =resize(imn,newsize)
+                xx = x1 + (x2 - x1) / 2 - 212
+                yy = y1 + (y2 - y1) / 2 - 212
+                return xx, yy,resized_im
         
+        image_dir = [self.S_img_directory,self.E_img_directory,self.O_img_directory]
+        class_name = ['Spiral', 'Elliptical', 'Odd_objects']
+
+        for c in range(len(image_dir)):
+                
+            image_files = [os.path.join(image_dir[c], filename) for filename in os.listdir(image_dir[c]) if filename.endswith('.jpg')]
+            cropped_imgs = []
+            cropped_image_count = 0
+            for im in image_files:
+                xx=100
+                yy=100
+                img = cv2.imread(im)
+                x, y, imd = cheak_1(img)  
+
+                if np.min(x)>20 and np.min(y)>20 and np.max(y)<212*2-20 and np.max(x)<212*2-20:
+                    xx,yy,resized_im=cheak_3(img,x,y)
+                    if (np.abs(xx) >= 30) and (np.abs(yy) >= 30):
+                        x, y, dd = cheak_2(img)
+                        xx,yy,resized_im=cheak_3(img,x,y)
+                else: 
+                    x, y, dd = cheak_2(img) 
+                    if np.min(x)>20 and np.min(y)>20 and np.max(y)<212*2-20 and np.max(x)<212*2-20:
+                        xx,yy,resized_im=cheak_3(img,x,y)      
+                        # print(xx,yy)
+                if (np.abs(xx) < 30) and (np.abs(yy) < 30):
+                        ms = np.shape(resized_im)
+                        if ms[0] < 150:
+                            crop_img = np.array(resize(resized_im, (150, 150)))
+                        elif (ms[0] < 250) and (ms[0] >= 150):
+                            crop_img = np.array(resize(resized_im, (250, 250)))
+                        elif (ms[0] < 350) and (ms[0] >= 250):
+                            crop_img = np.array(resize(resized_im, (350, 350)))
+                        elif ms[0] >= 350:
+                            crop_img = np.array(resize(resized_im, (450, 450)))
+                                                                            
+                        arr_img = np.array(crop_img)
+                        cropped_imgs.append(arr_img)
+
+                        cropped_image_count += 1
+            
+            output_dir=f'{image_dir[c]}/{class_name[c]}'
+            os.makedirs(output_dir, exist_ok=True)
+            for idx, cropped_img in enumerate(cropped_imgs):
+                result = cv2.normalize(cropped_img, dst=None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+                output_path = os.path.join(output_dir, f'cropped_image_{idx}.jpg')
+                cv2.imwrite(output_path, result)
+
+
     def calculate_zernike_moments(self):
         zernike_order = int(input('Input the Zernike order: '))
         
@@ -39,10 +135,10 @@ class GalaxyClassificationModels:
             image_dir = [self.galaxy_img_directory, self.nongalaxy_img_directory]
             class_name = ['Galaxy', 'Non_Galaxy']
         elif self.num_class==3:
-            image_dir = [self.S_img_directory,self.E_img_directory,self.O_img_directory]
+            image_dir = [self.S_img_directory+'/Spiral',self.E_img_directory+'/Elliptical',self.O_img_directory+'/Odd_objects']
             class_name = ['Spiral', 'Elliptical', 'Odd_objects']
         
-        zernike_output_path = input('Input the directory to save the ZMs: ')
+        # zernike_output_path = input('Input the directory to save the ZMs: ')
 
         for i in range(len(image_dir)):
             image_files = [os.path.join(image_dir[i], filename) for filename in os.listdir(image_dir[i]) if filename.endswith('.jpg')]
@@ -58,7 +154,7 @@ class GalaxyClassificationModels:
             
             df = pd.DataFrame(zernike_moments)
 
-            df.to_csv(zernike_output_path + f'/{class_name[i]}_zm.csv', index=False)
+            df.to_csv(image_dir[i] + f'/{class_name[i]}_zm.csv', index=False)
         
         return df
     
@@ -79,11 +175,11 @@ class GalaxyClassificationModels:
             class_weights = {0: len(all_zm_data) / (2 * len(zmg)), 1: len(all_zm_data) / (2 * len(zmng))}
 
         elif self.num_class==3:
-            zm_directory = input("Input ZMs directory: ")
-
-            spiral_data = pd.read_csv(zm_directory + '/Spiral_zm.csv')
-            elliptical_data = pd.read_csv(zm_directory + '/Elliptical_zm.csv')
-            odd_data = pd.read_csv(zm_directory + '/Odd_objects_zm.csv')
+            # zm_directory = input("Input ZMs directory: ")
+            image_dir = [self.S_img_directory+'/Spiral',self.E_img_directory+'/Elliptical',self.O_img_directory+'/Odd_objects']
+            spiral_data = pd.read_csv(image_dir[0] + '/Spiral_zm.csv')
+            elliptical_data = pd.read_csv(image_dir[1] + '/Elliptical_zm.csv')
+            odd_data = pd.read_csv(image_dir[2] + '/Odd_objects_zm.csv')
             all_zm_data = np.concatenate([spiral_data, elliptical_data, odd_data])
 
             spiral_label = [0] * len(spiral_data)
@@ -120,11 +216,11 @@ class GalaxyClassificationModels:
             y_train_encoded = to_categorical(y_zm_train, num_classes=2)
         
         elif self.num_class==3:
-            zm_directory = input("Input ZMs directory: ")
-
-            spiral_data = pd.read_csv(zm_directory + '/Spiral_zm.csv')
-            elliptical_data = pd.read_csv(zm_directory + '/Elliptical_zm.csv')
-            odd_data = pd.read_csv(zm_directory + '/Odd_objects_zm.csv')
+            # zm_directory = input("Input ZMs directory: ")
+            image_dir = [self.S_img_directory+'/Spiral',self.E_img_directory+'/Elliptical',self.O_img_directory+'/Odd_objects']
+            spiral_data = pd.read_csv(image_dir[0] + '/Spiral_zm.csv')
+            elliptical_data = pd.read_csv(image_dir[1] + '/Elliptical_zm.csv')
+            odd_data = pd.read_csv(image_dir[2] + '/Odd_objects_zm.csv')
             all_zm_data = np.concatenate([spiral_data, elliptical_data, odd_data])
 
             spiral_label = [0] * len(spiral_data)
@@ -200,9 +296,9 @@ class GalaxyClassificationModels:
             class_weights = {0: len(all_data) / (2 * len(g_img)), 1: len(all_data) / (2 * len(ng_img))}
 
         elif self.num_class==3:
-            s_img = load_images(self.S_img_directory, target_size=(self.target_size,self.target_size))
-            e_img = load_images(self.E_img_directory, target_size=(self.target_size,self.target_size))
-            o_img = load_images(self.O_img_directory, target_size=(self.target_size,self.target_size))
+            s_img = load_images(self.S_img_directory+'/Spiral', target_size=(self.target_size,self.target_size))
+            e_img = load_images(self.E_img_directory+'/Elliptical', target_size=(self.target_size,self.target_size))
+            o_img = load_images(self.O_img_directory+'/Odd_objects', target_size=(self.target_size,self.target_size))
             all_data = s_img + e_img + o_img
 
             spiral_label = [0] * len(s_img)
@@ -214,8 +310,6 @@ class GalaxyClassificationModels:
             y_train_encoded = to_categorical(y_img_train, num_classes=3)
             
             class_weights = {0: len(all_data) / (3*len(s_img)), 1: len(all_data) / (3*len(e_img)), 2: len(all_data) / (3*len(o_img))}
-
-        
 
         # Define transforms
         train_transform = transforms.Compose([
@@ -332,5 +426,5 @@ class GalaxyClassificationModels:
         y_pred_labels = np.argmax(y_pred, axis=1)
         acc = metrics.accuracy_score(y_img_test, y_pred_labels)
         print('The Acuuracy is: ', acc)
-        
+
         return y_img_test, y_pred_labels

@@ -12,9 +12,12 @@ def main():
 
     function = sys.argv[1]
 
-    if function == 'calculate_zernike_moments':
+    if function == 'zm_cal':
         df = model.calculate_zernike_moments()
         print("Zernike moments calculated and saved.")
+    elif function == 'seg_crop':
+        model.segmentation_crop()
+        print("The images are cropped.")
     elif function == 'model_i':
         y_zm_test, y_pred = model.model_I()
         print("SVM Zernike Moments prediction completed.")
