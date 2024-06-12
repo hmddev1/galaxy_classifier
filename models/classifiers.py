@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, MaxPooling1D, Dropout, Flatten, Dense, Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, MaxPooling1D, Flatten, Dense, Conv2D, MaxPooling2D
 from tensorflow.keras.applications import ResNet50, VGG16
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.utils import to_categorical
@@ -16,36 +16,42 @@ import tensorflow as tf
 from PIL import Image
 
 class GalaxyClassificationModels:
-    def __init__(self, image_dir, zm_output_path, image_size=(200, 200), zm_order=45):
-        self.image_dir = image_dir
-        self.zernike_output_path = zm_output_path
-        self.image_size = image_size
-        self.zernike_order = zm_order
-        self.zernike_repetition = 1
+    def __init__(self):
+        self.galaxy_img_directory = input('Input the galaxy image directory: ')
+        self.nongalaxy_img_directory = input('Input the non-galaxy image directory: ')
+        self.target_size = int(input('Input the target size: '))
         
     def calculate_zernike_moments(self):
-        ZBFSTR = zemo.zernike_bf(self.image_size[0], self.zernike_order, self.zernike_repetition)
-        image_files = [os.path.join(self.image_dir, filename) for filename in os.listdir(self.image_dir) if filename.endswith('.jpg')]
-        zernike_moments = []
+        zernike_order = int(input('Input the Zernike order: '))
         
-        for img_path in image_files:
-            image = cv2.imread(img_path)
-            resized_image = cv2.resize(image, self.image_size)
-            im = resized_image[:, :, 0]
-            Z = np.abs(zemo.zernike_mom(np.array(im), ZBFSTR))
-            zernike_moments.append(Z)
+        ZBFSTR = zemo.zernike_bf(self.target_size, zernike_order, 1)
+
+        image_dir = [self.galaxy_img_directory, self.nongalaxy_img_directory]
+
+        for i in range(len(image_dir)):
+            image_files = [os.path.join(image_dir[i], filename) for filename in os.listdir(image_dir[i]) if filename.endswith('.jpg')]
         
-        df = pd.DataFrame(zernike_moments)
-        df.to_csv(self.zernike_output_path, index=False)
+            zernike_moments = []
+        
+            for img_path in image_files:
+                image = cv2.imread(img_path)
+                resized_image = cv2.resize(image, (self.target_size,self.target_size))
+                im = resized_image[:, :, 0]
+                Z = np.abs(zemo.zernike_mom(np.array(im), ZBFSTR))
+                zernike_moments.append(Z)
+            
+            df = pd.DataFrame(zernike_moments)
+            zernike_output_path = input('Input the directory to save the ZMs: ')
+            df.to_csv(zernike_output_path + '/zm.csv', index=False)
         
         return df
     
-    def svm_zms(self):
+    def model_I(self):
         galaxy_zm_directory=input("Input the Galaxy's ZMs directory: ")
         nongalaxy_zm_directory=input("Input the non-galaxy's ZMs directory: ")
         
-        galaxy_zms = pd.read_csv(galaxy_zm_directory)
-        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
+        galaxy_zms = pd.read_csv(galaxy_zm_directory + '/zm.csv')
+        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory + '/zm.csv')
         zmg = np.array(galaxy_zms)
         zmng = np.array(nongalaxy_zms)
         all_zm_data = np.concatenate([zmg,zmng])
@@ -54,19 +60,19 @@ class GalaxyClassificationModels:
         nongalaxy_labels = np.ones(len(zmng))
         all_labels = np.concatenate([galaxies_labels, nongalaxy_labels])
 
-        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=None)
+        zm_train, zm_test, y_zm_train, y_zm_test = train_test_split(all_zm_data, all_labels, test_size=0.25, shuffle=True, random_state=104)
         class_weights = {0: len(all_zm_data) / (2 * len(zmg)), 1: len(all_zm_data) / (2 * len(zmng))}
         model = SVC(kernel='rbf', probability=True, C=1.5, gamma='scale', class_weight=class_weights)
         model.fit(zm_train, y_zm_train)
         y_pred = model.predict(zm_test)
-        return y_pred
+        return y_zm_test, y_pred
     
-    def cnn_zms(self):
+    def model_II(self):
         galaxy_zm_directory=input("Input the Galaxy's ZMs directory: ")
         nongalaxy_zm_directory=input("Input the non-galaxy's ZMs directory: ")
         
-        galaxy_zms = pd.read_csv(galaxy_zm_directory)
-        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory)
+        galaxy_zms = pd.read_csv(galaxy_zm_directory+ '/zm.csv')
+        nongalaxy_zms = pd.read_csv(nongalaxy_zm_directory+ '/zm.csv')
         zmg = np.array(galaxy_zms)
         zmng = np.array(nongalaxy_zms)
         all_zm_data = np.concatenate([zmg,zmng])
@@ -105,12 +111,12 @@ class GalaxyClassificationModels:
         model.fit(zm_train, y_train_encoded, batch_size=b_size, epochs=e_num, validation_split=0.1, callbacks=[es], class_weight=class_weights)
         y_pred = model.predict(zm_test)
         y_pred_labels = np.argmax(y_pred, axis=1)
-        return y_pred_labels
+        return y_zm_test, y_pred_labels
     
 
     def load_transform_images(data_dir,target_size=(200, 200)):
 
-        def load_images(sub_dir, categories, target_size=(200, 200)):
+        def load_images(sub_dir, target_size=(200, 200)):
             all_images = []
             file_paths = [os.path.join(sub_dir, filename) for filename in os.listdir(sub_dir) if filename.endswith('.jpg')]
             for img_path in file_paths:
@@ -124,10 +130,9 @@ class GalaxyClassificationModels:
         galaxy_img_directory=input("Input the Galaxy's images directory: ")
         nongalaxy_img_directory=input("Input the non-galaxy's images directory: ")
         
-        categories=['g','ng']
         # Load images
-        g_img = load_images(galaxy_img_directory,categories=categories[0], target_size=(200,200))
-        ng_img = load_images(nongalaxy_img_directory, categories=categories[1], target_size=(200,200))
+        g_img = load_images(galaxy_img_directory, target_size=(200,200))
+        ng_img = load_images(nongalaxy_img_directory, target_size=(200,200))
         all_data = g_img + ng_img
 
         # Create labels

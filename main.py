@@ -3,9 +3,9 @@ import sys
 from models import classifiers
 
 def main():
-    image_dir = 'C:/Users/HMDdev/Pictures/non'
-    zm_output_path = 'C:/Users/HMDdev/Pictures/non/zernike_non.csv'
-    model = classifiers.GalaxyClassificationModels(image_dir, zm_output_path)
+    # galaxy_img_directory = 'C:/Users/HMDdev/Pictures/non'
+    # nongalaxy_img_directory = 'C:/Users/HMDdev/Pictures/non/zernike_non.csv'
+    model = classifiers.GalaxyClassificationModels()
 
     if len(sys.argv) < 2:
         print("Usage: python main.py <function> [<args>...]")
@@ -14,14 +14,17 @@ def main():
     function = sys.argv[1]
 
     if function == 'calculate_zernike_moments':
+        print(f"Galaxy Image Directory: {model.galaxy_img_directory}")
+        print(f"Non-Galaxy Image Directory: {model.nongalaxy_img_directory}")
+        print(f"Target Size: {model.target_size}")
         df = model.calculate_zernike_moments()
         print("Zernike moments calculated and saved.")
-    elif function == 'svm_zms':
-        y_pred = model.svm_zms()
+    elif function == 'model_I':
+        y_pred = model.model_I()
         print("SVM Zernike Moments prediction completed.")
         print("Predicted value:", y_pred)
-    elif function == 'cnn_zms':
-        y_pred = model.cnn_zms()
+    elif function == 'model_II':
+        y_pred = model.model_II()
         print("CNN Zernike Moments prediction completed.")
         print("Predicted value:", y_pred)
     elif function == 'cnn_transformer':
