@@ -9,32 +9,28 @@ This repository includes two python notebooks of the classifiers for galaxy-non-
 
 # Machine Learning for Morphological Galaxy Classification
 
-Welcome to the **Machine Learning for Morphological Galaxy Classification** repository! This project focuses on classifying Galaxy Zoo 2 (GZ2) images into various categories using state-of-the-art machine learning models.
+The *"Machine learning for morphological galaxy classification"* is a repository for classifying [Galaxy Zoo 2](https://data.galaxyzoo.org/#section-7) (GZ2) images into **(1) Galaxy and Non-Galaxy**, and **(2) Galaxy in Spiral, Elliptical, and Odd objects** using the five state-of-the-art machine learning models.
 
 ## Overview
-
-In this repository, we classify GZ2 images into:
-1. **Galaxy and Non-Galaxy**
-2. **Galaxy Morphologies:** Spiral, Elliptical, and Odd objects
 
 We employed five different classification models, including:
 
 - Support Vector Machine (SVM)
-- Classic Convolutional Neural Network (CNN)
-- CNN - Transformer
-- ResNet
-- VGG
+- Classic 1D-Convolutional Neural Network (1D-CNN)
+- CNN - Vision Transformer
+- ResNet50 - Vision Transformer
+- VGG16 - Vision Transformer
 
-The SVM and classic CNN models utilized Zernike moments (ZMs) extracted from the images, whereas the CNN - Transformer, ResNet, and VGG models were designed based on the original images.
+The SVM and classic 1D-CNN models utilized Zernike moments (ZMs) extracted from the images, while the CNN - Vision Transformer, ResNet50 - Vision Transformer, and VGG16 - Vision Transformer models were designed based on the original images.
 
 For more details on the algorithms, please refer to our paper: [Ghaderi, Alipour, and Safari](paperlink).
 
 ## Repository Structure
 
-This repository includes two Jupyter notebooks:
+This repository includes two main Jupyter notebooks:
 
-- **Galaxy-Non-Galaxy Classification**: [galaxy_non_galaxy_classification.ipynb](path-to-notebook)
-- **Galaxy Morphology Classification**: [galaxy_morphology_classification.ipynb](path-to-notebook)
+- **Galaxy-Non-Galaxy Classification**: [galaxy_nongalaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_nongalaxy_classifiers.ipynb)
+- **Galaxy Morphology Classification**: [galaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_classifier.ipynb)
 
 ## Getting Started
 
