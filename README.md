@@ -30,7 +30,13 @@ For more details on the algorithms, please refer to our paper: [Ghaderi, Alipour
 This repository includes two main Jupyter notebooks:
 
 - **Galaxy-Non-Galaxy Classification**: [galaxy_nongalaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_nongalaxy_classifiers.ipynb)
-- **Galaxy Morphology Classification**: [galaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_classifier.ipynb)
+- **Galaxy Classification**: [galaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_classifier.ipynb)
+
+The Data includes: 
+
+galaxy ZMs
+galaxy non-galaxy
+
 
 ## Getting Started
 
