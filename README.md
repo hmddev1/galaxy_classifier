@@ -23,17 +23,16 @@ This repository includes two main Jupyter notebooks:
 - **Galaxy-Non-Galaxy Classification**: [galaxy_nongalaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_nongalaxy_classifiers.ipynb)
 - **Galaxy Classification**: [galaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_classifier.ipynb)
 
-<!-- The Data includes: 
+The Data includes: 
 
 galaxy ZMs
-galaxy non-galaxy -->
+galaxy non-galaxy
+
+## Authors
+
+[Hamed Ghaderi](https://scholar.google.com/citations?user=G1jGaYcAAAAJ&hl=en), [Nasibe Alipour](https://scholar.google.com/citations?user=PfzZOI0AAAAJ&hl=en), [Hossein Safari](https://scholar.google.com/citations?user=nCc1FV8AAAAJ&hl=en)
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
 
 
-<!-- ## Getting Started
-
-### Prerequisites
-
-Ensure you have the following libraries installed:
-
-```bash
-pip install numpy pandas scikit-learn tensorflow keras -->
