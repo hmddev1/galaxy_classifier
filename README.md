@@ -23,10 +23,16 @@ This repository includes two main Jupyter notebooks:
 - **Galaxy-Non-Galaxy Classification**: [galaxy_nongalaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_nongalaxy_classifiers.ipynb)
 - **Galaxy Classification**: [galaxy_classifiers.ipynb](https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification/blob/main/galaxy_classifier.ipynb)
 
-The Data includes: 
+## Data
+Please download the **Data** files from [this link](https://drive.google.com/file/d/1wxmYQ8qpgaVDuD3kTeBrZlyny0IBA9wn/view?usp=drive_link) that includes two categories:
 
-galaxy ZMs
-galaxy non-galaxy
+1. **galaxy-non-galaxy**
+2. **galaxy**
+
+Each category contains two folders:
+
+- **image**: This folder includes the original images for galaxy_non_galaxy and cropped images for galaxy classifiers.
+- **ZMs**: This folder contains Zernike Moments (ZMs) data sets in CSV file format.
 
 ## Authors
 
