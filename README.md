@@ -6,11 +6,11 @@ The *"Machine learning for morphological galaxy classification"* is a repository
 
 We employed five different classification models, including:
 
-- Support Vector Machine (SVM)
-- Classic 1D-Convolutional Neural Network (1D-CNN)
-- CNN - Vision Transformer
-- ResNet50 - Vision Transformer
-- VGG16 - Vision Transformer
+1. Support Vector Machine (SVM)
+2. Classic 1D-Convolutional Neural Network (1D-CNN)
+3. CNN - Vision Transformer
+4. ResNet50 - Vision Transformer
+5. VGG16 - Vision Transformer
 
 The SVM and classic 1D-CNN models utilized Zernike moments (ZMs) extracted from the images, while the CNN - Vision Transformer, ResNet50 - Vision Transformer, and VGG16 - Vision Transformer models were designed based on the original images.
 
@@ -26,12 +26,12 @@ This repository includes two main Jupyter notebooks:
 ## Data
 Please download the **Data** files from [this link](https://drive.google.com/file/d/1wxmYQ8qpgaVDuD3kTeBrZlyny0IBA9wn/view?usp=drive_link) that includes two categories:
 
-1. **galaxy-non-galaxy**
+1. **galaxy-nongalaxy**
 2. **galaxy**
 
 Each category contains two folders:
 
-- **image**: This folder includes the original images for galaxy_non_galaxy and cropped images for galaxy classifiers.
+- **image**: This folder includes the original images for galaxy_nongalaxy and cropped images for galaxy classifiers.
 - **ZMs**: This folder contains Zernike Moments (ZMs) data sets in CSV file format.
 
 ## Authors
