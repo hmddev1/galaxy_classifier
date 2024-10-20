@@ -6,13 +6,13 @@ The *"Machine learning for morphological galaxy classification"* is a repository
 
 We employed five different classification models, including:
 
-1. Support Vector Machine (SVM)
-2. Classic 1D-Convolutional Neural Network (1D-CNN)
-3. CNN - Vision Transformer
-4. ResNet50 - Vision Transformer
-5. VGG16 - Vision Transformer
+1. Support Vector Machine (SVM) with Zernike moments (ZMs)
+2. 1D-Convolutional Neural Network (1D-CNN) with ZMs
+3. 2D-CNN with Vision Transformer (ViT) and original images
+4. ResNet50 with ViT and original images
+5. VGG16 with ViT and original images
 
-The SVM and classic 1D-CNN models utilized Zernike moments (ZMs) extracted from the images, while the CNN - Vision Transformer, ResNet50 - Vision Transformer, and VGG16 - Vision Transformer models were designed based on the original images.
+The SVM and 1D-CNN models utilized Zernike moments (ZMs) extracted from the images, while the 2D-CNN, ResNet5, and VGG16 with Vision Transformer (ViT) models were designed based on the original images.
 
 For more details on the algorithms, please refer to our paper: [Ghaderi, Alipour, and Safari](paperlink).
 
