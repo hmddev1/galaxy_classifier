@@ -10,7 +10,8 @@ authors:
   - family-names: "Safari"	
     given-names: "Hossein"
     orcid: https://orcid.org/0000-0003-2326-3201
-title: "Machine learning classification of galaxies based on Zernike moments"
+title: "machine_learning_for_morphological_galaxy_classification"
 version: 0.1
 doi: 10.5281/zenodo.14620137
 date-released: 2024-06-10
+url: https://github.com/hmddev1/machine_learning_for_morphological_galaxy_classification
