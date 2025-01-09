@@ -10,7 +10,7 @@ authors:
   - family-names: "Safari"
     given-names: "Hossein"
     orcid: https://orcid.org/0000-0003-2326-3201
-title: "machine_learning_for_morphological_galaxy_classification"
+title: "Machine learning for Morphological Galaxy Classification"
 version: "0.1"
 doi: 10.5281/zenodo.14620137
 date-released: 2024-06-10
