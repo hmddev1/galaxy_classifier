@@ -1,17 +1,15 @@
-cff-version: 0.1
+cff-version: 1.1.0
 message: "If you use this software, please cite it as below."
-
 authors:
   - family-names: Ghaderi	
     given-names: Hamed
-    orcid: https://orcid.org/0009-0005-7934-2752
+  orcid: https://orcid.org/0009-0005-7934-2752
   - family-names: Alipour	
     given-names: Nasibe
-    orcid: https://orcid.org/0000-0003-3643-5121
+  orcid: https://orcid.org/0000-0003-3643-5121
   - family-names: Safari	
     given-names: Hossein
-    orcid: https://orcid.org/0000-0003-2326-3201
-
+  orcid: https://orcid.org/0000-0003-2326-3201
 title: "Machine learning classification of galaxies based on Zernike moments"
 version: 0.1
 identifiers:
