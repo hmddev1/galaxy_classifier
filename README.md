@@ -14,7 +14,7 @@ We employed five different classification models, including:
 
 The SVM and 1D-CNN models utilized Zernike moments (ZMs) extracted from the images, while the 2D-CNN, ResNet5, and VGG16 with Vision Transformer (ViT) models were designed based on the original images.
 
-For more details on the algorithms, please refer to our paper: [Ghaderi, Alipour, and Safari](paperlink).
+For more details on the algorithms, please refer to our paper: [H. Ghaderi, N. Alipour, and H. Safari](https://arxiv.org/abs/2501.09816).
 
 ## Repository Structure
 
